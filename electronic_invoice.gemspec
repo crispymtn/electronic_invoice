@@ -11,7 +11,6 @@ Gem::Specification.new do |spec|
   spec.summary = "Generate ZUGFeRD-compliant electronic invoices"
   spec.description = "A Ruby gem to generate XML invoices following the ZUGFeRD standard"
   spec.homepage = "https://github.com/crispymtn/electronic_invoice"
-  spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"
 
   spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
