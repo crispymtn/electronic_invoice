@@ -26,9 +26,9 @@ module ElectronicInvoice
 
       # Address
       xml["ram"].PostalTradeAddress do
+        xml["ram"].PostcodeCode zip_code
         xml["ram"].LineOne "#{street} #{number}"
         xml["ram"].LineTwo addition if addition
-        xml["ram"].PostcodeCode zip_code
         xml["ram"].CityName town
         xml["ram"].CountryID country_code
       end
