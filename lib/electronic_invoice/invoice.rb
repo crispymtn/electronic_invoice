@@ -55,9 +55,11 @@ module ElectronicInvoice
             end
 
             # Mandatory information on the invoicing party
-            xml["ram"].IncludedNote do
-              xml["ram"].Content regulatory_information
-              xml["ram"].SubjectCode "REG"
+            if regulatory_information
+              xml["ram"].IncludedNote do
+                xml["ram"].Content regulatory_information
+                xml["ram"].SubjectCode "REG"
+              end
             end
 
             # Header and footer text
