@@ -11,7 +11,7 @@ class InvoiceTest < Minitest::Test
       net_total: 1000.0,
       payment_terms: "30 days net",
       payment_type: "SEPA_CREDIT",
-      payment_ionformation: "SEPA Credit Transfer",
+      payment_information: "SEPA Credit Transfer",
       iban: "DE89370400440532013000",
       gross_total: 1190.0,
       seller: {

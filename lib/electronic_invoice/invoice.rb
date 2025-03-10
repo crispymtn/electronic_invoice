@@ -8,11 +8,11 @@ module ElectronicInvoice
 
     attr_accessor :number, :kind, :invoice_date, :due_date, :delivery_date, :delivery_date_until, :net_total,
     :gross_total, :tax_category, :tax_exemption_reason, :buyer_reference, :seller, :buyer, :line_items, :currency_code,
-    :payment_terms, :payment_type, :payment_ionformation, :iban, :preceding_invoice_reference, :preceding_invoice_date,
+    :payment_terms, :payment_type, :payment_information, :iban, :preceding_invoice_reference, :preceding_invoice_date,
     :regulatory_information, :header_text, :footer_text
 
     validates :number, :invoice_date, :due_date, :delivery_date, :seller, :buyer, :payment_terms,
-      :payment_type, :payment_ionformation, presence: true
+      :payment_type, :payment_information, presence: true
     validates :preceding_invoice_date, presence: true, if: -> { preceding_invoice_reference.present? }
 
     validate :validate_line_items_presence
@@ -125,7 +125,7 @@ module ElectronicInvoice
               xml["ram"].InvoiceCurrencyCode currency_code
               xml["ram"].SpecifiedTradeSettlementPaymentMeans do
                 xml["ram"].TypeCode PAYMENT_CODES[payment_type.upcase.to_sym]
-                xml["ram"].Information payment_ionformation
+                xml["ram"].Information payment_information
                 if iban
                   xml["ram"].PayeePartyCreditorFinancialAccount do
                     xml["ram"].IBANID iban
