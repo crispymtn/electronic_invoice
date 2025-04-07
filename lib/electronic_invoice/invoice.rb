@@ -139,7 +139,7 @@ module ElectronicInvoice
               # Taxes
               invoice_line_items.group_by(&:tax_rate).each do |tax_rate, items|
                 xml["ram"].ApplicableTradeTax do
-                  ElectronicInvoice::Helpers.currency_element(xml, "ram", "CalculatedAmount", items.sum(&:tax), currency_code)
+                  ElectronicInvoice::Helpers.currency_element(xml, "ram", "CalculatedAmount", items.sum(&:tax).round, currency_code)
                   xml["ram"].TypeCode "VAT"
 
                   if exemption_reason = tax_exemption_reason || TAX_EXEMPTION_REASONS[TAX_CATEGORY_CODES[tax_category.upcase.to_sym] || "S"]
@@ -207,7 +207,7 @@ module ElectronicInvoice
                 ElectronicInvoice::Helpers.currency_element(xml, "ram", "ChargeTotalAmount", 0, currency_code)
                 ElectronicInvoice::Helpers.currency_element(xml, "ram", "AllowanceTotalAmount", invoice_line_items.sum(&:discount_amount), currency_code)
                 ElectronicInvoice::Helpers.currency_element(xml, "ram", "TaxBasisTotalAmount", net_total, currency_code)
-                ElectronicInvoice::Helpers.currency_element(xml, "ram", "TaxTotalAmount", invoice_line_items.sum(&:tax), currency_code, add_currency: true)
+                ElectronicInvoice::Helpers.currency_element(xml, "ram", "TaxTotalAmount", invoice_line_items.sum(&:tax).round, currency_code, add_currency: true)
                 ElectronicInvoice::Helpers.currency_element(xml, "ram", "GrandTotalAmount", gross_total, currency_code)
                 ElectronicInvoice::Helpers.currency_element(xml, "ram", "TotalPrepaidAmount", 0, currency_code)
                 ElectronicInvoice::Helpers.currency_element(xml, "ram", "DuePayableAmount", gross_total, currency_code)
