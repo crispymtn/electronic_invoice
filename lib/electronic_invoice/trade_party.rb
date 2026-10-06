@@ -7,7 +7,8 @@ module ElectronicInvoice
     attr_accessor :reference, :name, :email, :contact_name, :phone, :electronic_address, :street, :number, :addition,
       :zip_code, :town, :country_code, :vat_id, :tax_id, :registration_number, :electronic_invoicing_identifier
 
-    validates :name, :street, :number, :zip_code, :town, :country_code, presence: true
+    # The house number is optional, it can also be part of the street
+    validates :name, :street, :zip_code, :town, :country_code, presence: true
     validates :country_code, inclusion: { in: COUNTRY_CODES, message: "is not a valid ISO 3166-1 country code" },
       allow_blank: true
 
@@ -48,7 +49,7 @@ module ElectronicInvoice
       # Address
       xml["ram"].PostalTradeAddress do
         xml["ram"].PostcodeCode zip_code
-        xml["ram"].LineOne "#{street} #{number}"
+        xml["ram"].LineOne [street, number].compact_blank.join(" ")
         xml["ram"].LineTwo addition if addition.present?
         xml["ram"].CityName town
         xml["ram"].CountryID country_code

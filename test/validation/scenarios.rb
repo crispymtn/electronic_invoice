@@ -45,6 +45,7 @@ cases = {
   "skonto" => { cash_discounts: [{ days: 14, rate: 0.02 }, { days: 7, rate: 0.03, basis_amount: 100000 }] },
   "direct_debit" => { payment_type: "SEPA_DEBIT", mandate_reference: "MANDAT-1", creditor_reference_id: "DE98ZZZ09999999999", debtor_iban: "DE02120300000000202051" },
   "card" => { payment_type: "CREDITCARD", card_number: "1234", card_holder: "Erika Muster", iban: nil },
+  "no_house_number" => { buyer: base[:buyer].except(:number).merge(street: "Emmerich-Josef-Straße 1a") },
   "ship_to" => { ship_to: { name: "Lager Nord", street: "Hafenweg", number: "7", zip_code: "20457", town: "Hamburg", country_code: "DE" } },
 }
 

@@ -271,6 +271,26 @@ This will output the XML string for the invoice, which can then be sent to the a
 </rsm:CrossIndustryInvoice>
 ```
 
+## Error messages
+
+`to_xml` raises an `ElectronicInvoice::Error` with all validation errors. The gem does not ship translations, every error has an English default message and a key, so the application can translate them in its own locale files:
+
+```yaml
+de:
+  activemodel:
+    attributes:
+      electronic_invoice/invoice:
+        iban: IBAN
+    errors:
+      models:
+        electronic_invoice/invoice:
+          attributes:
+            iban:
+              invalid_iban: ist keine gültige IBAN
+```
+
+The keys are listed in `lib/electronic_invoice/invoice.rb` (`errors.add(attribute, key, ...)`). Standard validations like `blank` use the translations of the application (e.g. rails-i18n). Messages are generated in the current `I18n.locale`.
+
 ## Overview of Attributes
 
 ### Invoice
@@ -316,7 +336,7 @@ This will output the XML string for the invoice, which can then be sent to the a
 - `phone`: The contact phone number of the trade party.
 - `electronic_address`: The electronic address (email) of the trade party, required for XRechnung.
 - `street`: The street address of the trade party.
-- `number`: The street number of the trade party.
+- `number`: The house number of the trade party (optional, it can also be part of `street`).
 - `addition`: Additional address information.
 - `zip_code`: The postal code of the trade party.
 - `town`: The town/city of the trade party.

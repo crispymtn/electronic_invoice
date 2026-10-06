@@ -390,14 +390,23 @@ module ElectronicInvoice
     end
 
     def associated_errors
-      errors.add(:seller, seller_trade_party.errors.full_messages.join(", ")) unless seller_trade_party.valid?
-      errors.add(:buyer, buyer_trade_party.errors.full_messages.join(", ")) unless buyer_trade_party.valid?
-      errors.add(:ship_to, ship_to_trade_party.errors.full_messages.join(", ")) unless ship_to_trade_party.valid?
-      invoice_line_items.map.with_index(1) do|li, i|
-        errors.add("Line item #{i}", li.errors.full_messages.join(", ")) unless li.valid?
+      { seller: seller_trade_party, buyer: buyer_trade_party, ship_to: ship_to_trade_party }.each do |attribute, party|
+        next if party.valid?
+
+        errors.add(:base, :party_invalid, party: self.class.human_attribute_name(attribute),
+          errors: party.errors.full_messages.join(", "), message: "%{party}: %{errors}")
       end
-      invoice_charges.map.with_index(1) do |charge, i|
-        errors.add("Charge #{i}", charge.errors.full_messages.join(", ")) unless charge.valid?
+      invoice_line_items.each.with_index(1) do |li, i|
+        next if li.valid?
+
+        errors.add(:base, :line_item_invalid, index: i, errors: li.errors.full_messages.join(", "),
+          message: "Line item %{index}: %{errors}")
+      end
+      invoice_charges.each.with_index(1) do |charge, i|
+        next if charge.valid?
+
+        errors.add(:base, :charge_invalid, index: i, errors: charge.errors.full_messages.join(", "),
+          message: "Charge %{index}: %{errors}")
       end
     end
 
@@ -412,26 +421,26 @@ module ElectronicInvoice
     end
 
     def validate_line_items_presence
-      errors.add(:line_items, "must contain at least one item") if line_items.blank?
+      errors.add(:line_items, :empty, message: "must contain at least one item") if line_items.blank?
     end
 
     def validate_codes
-      errors.add(:kind, "is not a known invoice type") unless type_code
-      errors.add(:payment_type, "is not a known payment type") if payment_type.present? && !payment_code
-      errors.add(:standard, "must be one of #{GUIDELINES.keys.join(", ")}") unless GUIDELINES.key?(standard)
+      errors.add(:kind, :unknown_invoice_type, message: "is not a known invoice type") unless type_code
+      errors.add(:payment_type, :unknown_payment_type, message: "is not a known payment type") if payment_type.present? && !payment_code
+      errors.add(:standard, :unknown_standard, standards: GUIDELINES.keys.join(", "), message: "must be one of %{standards}") unless GUIDELINES.key?(standard)
     end
 
     # BR-DE-19, BR-DE-20
     def validate_ibans
-      errors.add(:iban, "is not a valid IBAN") if iban.present? && !ElectronicInvoice::Helpers.valid_iban?(iban)
-      errors.add(:debtor_iban, "is not a valid IBAN") if debtor_iban.present? && !ElectronicInvoice::Helpers.valid_iban?(debtor_iban)
+      errors.add(:iban, :invalid_iban, message: "is not a valid IBAN") if iban.present? && !ElectronicInvoice::Helpers.valid_iban?(iban)
+      errors.add(:debtor_iban, :invalid_iban, message: "is not a valid IBAN") if debtor_iban.present? && !ElectronicInvoice::Helpers.valid_iban?(debtor_iban)
     end
 
     def validate_cash_discounts
       Array(cash_discounts).each do |discount|
         discount = discount.to_h.symbolize_keys
         unless discount[:days].to_i.positive? && discount[:rate].to_d.positive?
-          errors.add(:cash_discounts, "need positive days and rate")
+          errors.add(:cash_discounts, :invalid_cash_discount, message: "need positive days and rate")
         end
       end
     end
@@ -443,19 +452,19 @@ module ElectronicInvoice
       codes = (invoice_line_items + invoice_charges).map(&:tax_category_code).compact.uniq
 
       if (codes & %w[AE K G]).any?
-        errors.add(:seller, "VAT ID is required for tax categories AE, K and G") if seller_trade_party.vat_id.blank?
+        errors.add(:seller, :vat_id_required, message: "VAT ID is required for tax categories AE, K and G") if seller_trade_party.vat_id.blank?
       elsif (codes & %w[S Z E]).any?
-        errors.add(:seller, "VAT ID or tax ID is required") if seller_trade_party.vat_id.blank? && seller_trade_party.tax_id.blank?
+        errors.add(:seller, :tax_registration_required, message: "VAT ID or tax ID is required") if seller_trade_party.vat_id.blank? && seller_trade_party.tax_id.blank?
       end
 
       return if buyer.blank?
 
       if codes.include?("AE") && buyer_trade_party.vat_id.blank? && buyer_trade_party.registration_number.blank?
-        errors.add(:buyer, "VAT ID or registration number is required for tax category AE")
+        errors.add(:buyer, :reverse_charge_vat_id_required, message: "VAT ID or registration number is required for tax category AE")
       end
 
       if codes.include?("K") && buyer_trade_party.vat_id.blank?
-        errors.add(:buyer, "VAT ID is required for tax category K")
+        errors.add(:buyer, :intra_community_vat_id_required, message: "VAT ID is required for tax category K")
       end
     end
 
@@ -464,7 +473,7 @@ module ElectronicInvoice
       codes = (invoice_line_items + invoice_charges).map(&:tax_category_code).compact.uniq
 
       if codes.include?("O") && codes.size > 1
-        errors.add(:line_items, "must not combine tax category O with other tax categories")
+        errors.add(:line_items, :mixed_untaxed, message: "must not combine tax category O with other tax categories")
       end
     end
 
@@ -473,49 +482,53 @@ module ElectronicInvoice
       return unless invoice_line_items.all?(&:valid?) && invoice_charges.all?(&:valid?)
 
       if net_total.present? && ElectronicInvoice::Helpers.cents(net_total) != tax_basis_total_amount
-        errors.add(:net_total, "does not match the calculated total of #{ElectronicInvoice::Helpers.format_value(tax_basis_total_amount.to_d / 100)}")
+        errors.add(:net_total, :total_mismatch, total: ElectronicInvoice::Helpers.format_value(tax_basis_total_amount.to_d / 100),
+          message: "does not match the calculated total of %{total}")
       end
 
       if gross_total.present? && ElectronicInvoice::Helpers.cents(gross_total) != grand_total_amount
-        errors.add(:gross_total, "does not match the calculated total of #{ElectronicInvoice::Helpers.format_value(grand_total_amount.to_d / 100)}")
+        errors.add(:gross_total, :total_mismatch, total: ElectronicInvoice::Helpers.format_value(grand_total_amount.to_d / 100),
+          message: "does not match the calculated total of %{total}")
       end
     end
 
     # XRechnung 3.0 specific business rules (BR-DE-*)
     def validate_xrechnung
       if buyer_reference.blank? && buyer_trade_party.electronic_invoicing_identifier.blank?
-        errors.add(:buyer_reference, "(Leitweg-ID) is required for XRechnung")
+        errors.add(:buyer_reference, :required_for_xrechnung, message: "(Leitweg-ID) is required for XRechnung")
       end
 
       if type_code && !XRECHNUNG_TYPE_CODES.include?(type_code)
-        errors.add(:kind, "is not allowed for XRechnung")
+        errors.add(:kind, :not_allowed_for_xrechnung, message: "is not allowed for XRechnung")
       end
 
       if type_code == INVOICE_TYPES[:CORRECTION][:code] && preceding_invoice_reference.blank?
-        errors.add(:preceding_invoice_reference, "is required for corrections")
+        errors.add(:preceding_invoice_reference, :required_for_correction, message: "is required for corrections")
       end
 
       if seller.present?
         %i[contact_name phone email electronic_address].each do |attribute|
-          errors.add(:seller, "#{attribute} is required for XRechnung") if seller_trade_party.public_send(attribute).blank?
+          errors.add(:seller, :required_for_xrechnung, field: ElectronicInvoice::TradeParty.human_attribute_name(attribute),
+            message: "%{field} is required for XRechnung") if seller_trade_party.public_send(attribute).blank?
         end
 
         # BR-DE-27, BR-DE-28
         if seller_trade_party.phone.present? && seller_trade_party.phone.to_s.scan(/\d/).size < 3
-          errors.add(:seller, "phone must contain at least three digits")
+          errors.add(:seller, :invalid_phone, message: "phone must contain at least three digits")
         end
 
         if seller_trade_party.email.present? && !seller_trade_party.email.to_s.strip.match?(/\A[^@\s]+@([^@.\s]+\.)+[^@.\s]+\z/)
-          errors.add(:seller, "email is not a valid email address")
+          errors.add(:seller, :invalid_email, message: "email is not a valid email address")
         end
       end
 
       if buyer.present? && buyer_trade_party.electronic_address.blank?
-        errors.add(:buyer, "electronic_address is required for XRechnung")
+        errors.add(:buyer, :required_for_xrechnung, field: ElectronicInvoice::TradeParty.human_attribute_name(:electronic_address),
+          message: "%{field} is required for XRechnung")
       end
 
       if card_payment? && card_number.blank?
-        errors.add(:card_number, "is required for card payments in XRechnung")
+        errors.add(:card_number, :required_for_xrechnung, message: "is required for card payments in XRechnung")
       end
     end
   end
