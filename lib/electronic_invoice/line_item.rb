@@ -84,7 +84,7 @@ module ElectronicInvoice
       return if net.blank? || qty.blank? || net_total.blank?
 
       if (ElectronicInvoice::Helpers.cents(net_total) - line_total).abs > 1
-        errors.add(:net_total, "does not match qty * net")
+        errors.add(:net_total, :qty_mismatch, message: "does not match qty * net")
       end
     end
   end

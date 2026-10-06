@@ -232,11 +232,11 @@ class InvoiceTest < Minitest::Test
 
     assert_includes @invoice.errors[:buyer_reference], "(Leitweg-ID) is required for XRechnung"
     assert_includes @invoice.errors[:kind], "is not allowed for XRechnung"
-    assert_includes @invoice.errors[:seller], "contact_name is required for XRechnung"
-    assert_includes @invoice.errors[:seller], "phone is required for XRechnung"
-    assert_includes @invoice.errors[:seller], "email is required for XRechnung"
-    assert_includes @invoice.errors[:seller], "electronic_address is required for XRechnung"
-    assert_includes @invoice.errors[:buyer], "electronic_address is required for XRechnung"
+    assert_includes @invoice.errors[:seller], "Contact name is required for XRechnung"
+    assert_includes @invoice.errors[:seller], "Phone is required for XRechnung"
+    assert_includes @invoice.errors[:seller], "Email is required for XRechnung"
+    assert_includes @invoice.errors[:seller], "Electronic address is required for XRechnung"
+    assert_includes @invoice.errors[:buyer], "Electronic address is required for XRechnung"
   end
 
   def test_xrechnung
@@ -380,5 +380,42 @@ class InvoiceTest < Minitest::Test
     refute @invoice.all_valid?
     assert_includes @invoice.errors[:currency_code], "is not a valid ISO 4217 currency code"
     assert_includes @invoice.seller_trade_party.errors[:country_code], "is not a valid ISO 3166-1 country code"
+  end
+
+  def test_house_number_is_optional
+    @invoice.buyer = @invoice.buyer.except(:number).merge(street: "Emmerich-Josef-Straße 1a")
+
+    doc = Nokogiri::XML(@invoice.to_xml)
+
+    assert_equal "Emmerich-Josef-Straße 1a", doc.at_xpath("//ram:BuyerTradeParty/ram:PostalTradeAddress/ram:LineOne").text
+  end
+
+  def test_error_message_of_line_items
+    @invoice.invoice_line_items.first.description = nil
+
+    error = assert_raises(ElectronicInvoice::Error) { @invoice.to_xml }
+    assert_includes error.message, "Line item 1: Description can't be blank"
+  end
+
+  def test_error_messages_can_be_translated_by_the_app
+    available_locales = I18n.available_locales
+    I18n.available_locales = available_locales | [:de]
+    I18n.backend.store_translations(:de, activemodel: {
+      attributes: { "electronic_invoice/invoice": { iban: "IBAN" } },
+      errors: { models: { "electronic_invoice/invoice": { attributes: { iban: { invalid_iban: "ist keine gültige IBAN" } } } } }
+    })
+    @invoice.iban = "DE00123"
+
+    I18n.with_locale(:de) do
+      refute @invoice.valid?
+      assert_includes @invoice.errors.full_messages, "IBAN ist keine gültige IBAN"
+    end
+
+    I18n.with_locale(:en) do
+      refute @invoice.valid?
+      assert_includes @invoice.errors[:iban], "is not a valid IBAN"
+    end
+  ensure
+    I18n.available_locales = available_locales
   end
 end

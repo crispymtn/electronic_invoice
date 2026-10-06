@@ -1,4 +1,9 @@
 ## [Unreleased]
+## [2.1.0] - 2026-10-06
+- Make the house number optional, it can also be part of the street
+- Add keys to all custom error messages so applications can translate them (English defaults, no translations in the gem)
+- Report errors of trade parties, line items and charges as "Line item 1: ..." on base
+
 ## [2.0.0] - 2026-10-06
 Breaking: the totals are now calculated from the line items. Given `net_total` / `gross_total` and the `net_total` of the line items have to match, otherwise an error is raised.
 
