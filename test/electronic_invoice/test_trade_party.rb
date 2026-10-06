@@ -17,6 +17,17 @@ class TradePartyTest < Minitest::Test
     )
   end
 
+  def test_to_xml_as_buyer_omits_tax_number
+    xml = Nokogiri::XML::Builder.new do |xml|
+      xml.root("xmlns:ram" => "urn:ram:namespace") do
+        @trade_party.to_xml(xml, role: :buyer)
+      end
+    end.to_xml
+
+    refute_includes xml, 'schemeID="FC"'
+    assert_includes xml, '<ram:ID schemeID="VA">DE123456789</ram:ID>'
+  end
+
   def test_valid_trade_party
     assert @trade_party.valid?
   end

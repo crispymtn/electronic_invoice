@@ -29,6 +29,24 @@ class LineItemTest < Minitest::Test
     assert_includes @line_item.errors[:description], "can't be blank"
   end
 
+  def test_unit_codes
+    assert_equal "XBO", ElectronicInvoice.unit_code("bottle")
+    assert_equal "C62", ElectronicInvoice.unit_code("C62")
+    assert_equal "H87", ElectronicInvoice.unit_code("EA")
+  end
+
+  def test_zero_rate_categories_require_zero_rate
+    @line_item.tax_category = "REVERSECHARGE"
+    refute @line_item.valid?
+    assert_includes @line_item.errors[:tax_rate], "must be 0 for tax category AE"
+  end
+
+  def test_unknown_tax_category
+    @line_item.tax_category = "FOO"
+    refute @line_item.valid?
+    assert_includes @line_item.errors[:tax_category], "is not a known tax category"
+  end
+
   def test_discounted?
     @line_item.discount = 10.0
     assert @line_item.discounted?

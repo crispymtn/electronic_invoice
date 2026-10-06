@@ -13,6 +13,7 @@ module ElectronicInvoice
 
   PAYMENT_CODES = {
     BANKACCOUNT: "42",
+    CREDIT_TRANSFER: "30",
     NOTSPECIFIED: "1",
     AUTOMATICCLEARING: "3",
     CASH: "10",
@@ -25,11 +26,35 @@ module ElectronicInvoice
     COMPENSATION: "97"
   }
 
+  CREDIT_TRANSFER_PAYMENT_CODES = %w[30 58]
+  CARD_PAYMENT_CODES = %w[48 54 55]
+  DIRECT_DEBIT_PAYMENT_CODES = %w[59]
+
+  # Default exemption reasons and VATEX codes per tax category code (BR-AE-10, BR-E-10, BR-G-10, BR-IC-10, BR-O-10)
   TAX_EXEMPTION_REASONS = {
-    REVERSECHARGE: "Reverse Charge",
-    INTRACOMMUNITY: "Intra-community transaction",
-    EXPORT: "Export outside the EU"
+    "AE" => { reason: "Reverse Charge", code: "VATEX-EU-AE" },
+    "E" => { reason: "Tax exempt" },
+    "K" => { reason: "Intra-community transaction", code: "VATEX-EU-IC" },
+    "G" => { reason: "Export outside the EU", code: "VATEX-EU-G" },
+    "O" => { reason: "Not subject to VAT", code: "VATEX-EU-O" }
   }
+
+  # Categories that must use a VAT rate of 0 (BR-Z-05, BR-E-05, BR-AE-05, BR-IC-05, BR-G-05)
+  ZERO_RATE_TAX_CATEGORY_CODES = %w[Z E AE K G]
+
+  # Categories that must not carry a VAT rate at all (BR-O-05)
+  RATELESS_TAX_CATEGORY_CODES = %w[O]
+
+  GUIDELINES = {
+    zugferd: "urn:cen.eu:en16931:2017",
+    xrechnung: "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"
+  }
+
+  # Business process (BT-23) required by XRechnung (PEPPOL-EN16931-R001)
+  XRECHNUNG_BUSINESS_PROCESS = "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0"
+
+  # Invoice type codes allowed by XRechnung (BR-DE-17)
+  XRECHNUNG_TYPE_CODES = %w[326 380 384 389 381 875 876 877]
 
   UNIT_CODES = {
     ONE: "C62",
@@ -55,9 +80,9 @@ module ElectronicInvoice
     SET: "SET",
     TON: "TNE",
     WEEK: "WEE",
-    BOTTLE: "BO",
-    CARTON: "CT",
-    CAN: "CA"
+    BOTTLE: "XBO",
+    CARTON: "XCT",
+    CAN: "XCA"
   }
 
   INVOICE_TYPES = {
@@ -82,4 +107,18 @@ module ElectronicInvoice
       name: "Stornorechnung"
     }
   }
+
+  class << self
+    def tax_category_code(category)
+      return if category.blank?
+
+      key = category.to_s.upcase
+      TAX_CATEGORY_CODES[key.to_sym] || (TAX_CATEGORY_CODES.value?(key) ? key : nil)
+    end
+
+    def unit_code(unit)
+      key = unit.to_s.upcase
+      UNIT_CODES[key.to_sym] || (UNIT_CODES.value?(key) ? key : "H87")
+    end
+  end
 end

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    electronic_invoice (1.0.2)
+    electronic_invoice (2.0.0)
       activemodel (~> 8.0)
       nokogiri
 
