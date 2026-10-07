@@ -32,7 +32,12 @@ class LineItemTest < Minitest::Test
   def test_unit_codes
     assert_equal "XBO", ElectronicInvoice.unit_code("bottle")
     assert_equal "C62", ElectronicInvoice.unit_code("C62")
-    assert_equal "H87", ElectronicInvoice.unit_code("EA")
+    assert_equal "EA", ElectronicInvoice.unit_code("EA")
+    assert_equal "XST", ElectronicInvoice.unit_code("SHEET")
+    assert_equal "RM", ElectronicInvoice.unit_code("ream")
+    assert_equal "XRO", ElectronicInvoice.unit_code("ROLL")
+    assert_equal "XPK", ElectronicInvoice.unit_code("XPK")
+    assert_equal "H87", ElectronicInvoice.unit_code("UNKNOWN")
   end
 
   def test_zero_rate_categories_require_zero_rate
@@ -67,7 +72,7 @@ class LineItemTest < Minitest::Test
     assert_includes xml, '<ram:LineID>1</ram:LineID>'
     assert_includes xml, '<ram:Name>Test Product</ram:Name>'
     assert_includes xml, '<ram:ChargeAmount>1.0000</ram:ChargeAmount>'
-    assert_includes xml, '<ram:BilledQuantity unitCode="H87">10.0000</ram:BilledQuantity>'
+    assert_includes xml, '<ram:BilledQuantity unitCode="EA">10.0000</ram:BilledQuantity>'
     assert_includes xml, '<ram:TypeCode>VAT</ram:TypeCode>'
     assert_includes xml, '<ram:CategoryCode>S</ram:CategoryCode>'
     assert_includes xml, '<ram:RateApplicablePercent>19.00</ram:RateApplicablePercent>'

@@ -1,4 +1,8 @@
 ## [Unreleased]
+## [2.2.0] - 2026-10-07
+- Pass through any UN/ECE Rec 20/21 unit code (e.g. "EA" is no longer converted to "H87")
+- Add the unit names SHEET (XST), REAM (RM) and ROLL (XRO)
+
 ## [2.1.1] - 2026-10-07
 - Validate the delivery address only if `ship_to` is given, errors of the buyer were reported twice otherwise
 

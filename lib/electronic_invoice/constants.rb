@@ -82,7 +82,10 @@ module ElectronicInvoice
     WEEK: "WEE",
     BOTTLE: "XBO",
     CARTON: "XCT",
-    CAN: "XCA"
+    CAN: "XCA",
+    SHEET: "XST",
+    REAM: "RM",
+    ROLL: "XRO"
   }
 
   INVOICE_TYPES = {
@@ -116,9 +119,10 @@ module ElectronicInvoice
       TAX_CATEGORY_CODES[key.to_sym] || (TAX_CATEGORY_CODES.value?(key) ? key : nil)
     end
 
+    # A name of UNIT_CODES or any UN/ECE Rec 20/21 code, H87 (piece) otherwise
     def unit_code(unit)
       key = unit.to_s.upcase
-      UNIT_CODES[key.to_sym] || (UNIT_CODES.value?(key) ? key : "H87")
+      UNIT_CODES[key.to_sym] || (UNIT_CODE_LIST.include?(key) ? key : "H87")
     end
   end
 end

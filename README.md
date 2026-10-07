@@ -350,7 +350,7 @@ The keys are listed in `lib/electronic_invoice/invoice.rb` (`errors.add(attribut
 
 - `description`: A description of the line item.
 - `qty`: The quantity of the line item.
-- `unit`: The unit of measure, either a key of `UNIT_CODES` (e.g. "HOUR") or a UN/ECE Rec 20 code (e.g. "C62").
+- `unit`: The unit of measure, either a key of `UNIT_CODES` (e.g. "HOUR") or any UN/ECE Rec 20/21 code (e.g. "C62", "XPK"). Unknown units fall back to "H87" (piece).
 - `net`: The net amount for the line item.
 - `net_total`: The net total amount for the line item, has to match `qty * net`.
 - `gross_total`: The gross total amount for the line item.
