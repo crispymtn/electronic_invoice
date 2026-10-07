@@ -1,4 +1,7 @@
 ## [Unreleased]
+## [2.1.1] - 2026-10-07
+- Validate the delivery address only if `ship_to` is given, errors of the buyer were reported twice otherwise
+
 ## [2.1.0] - 2026-10-06
 - Make the house number optional, it can also be part of the street
 - Add keys to all custom error messages so applications can translate them (English defaults, no translations in the gem)
