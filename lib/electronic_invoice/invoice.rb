@@ -44,6 +44,13 @@ module ElectronicInvoice
       @ship_to_trade_party ||= ship_to.present? ? ElectronicInvoice::TradeParty.new(ship_to) : buyer_trade_party
     end
 
+    # Parties to validate, the delivery address only if given (it is the buyer otherwise)
+    def trade_parties
+      parties = { seller: seller_trade_party, buyer: buyer_trade_party }
+      parties[:ship_to] = ship_to_trade_party if ship_to.present?
+      parties
+    end
+
     def invoice_line_items
       @invoice_line_items ||= Array(line_items.presence).map { ElectronicInvoice::LineItem.new(_1) }
     end
@@ -126,7 +133,7 @@ module ElectronicInvoice
 
     def all_valid?
       valid? & invoice_line_items.map(&:valid?).all? & invoice_charges.map(&:valid?).all? &
-        seller_trade_party.valid? & buyer_trade_party.valid? & ship_to_trade_party.valid?
+        trade_parties.values.map(&:valid?).all?
     end
 
     def to_xml
@@ -390,7 +397,7 @@ module ElectronicInvoice
     end
 
     def associated_errors
-      { seller: seller_trade_party, buyer: buyer_trade_party, ship_to: ship_to_trade_party }.each do |attribute, party|
+      trade_parties.each do |attribute, party|
         next if party.valid?
 
         errors.add(:base, :party_invalid, party: self.class.human_attribute_name(attribute),

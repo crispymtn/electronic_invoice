@@ -418,4 +418,19 @@ class InvoiceTest < Minitest::Test
   ensure
     I18n.available_locales = available_locales
   end
+
+  def test_buyer_errors_are_reported_once_without_ship_to
+    @invoice.buyer = @invoice.buyer.except(:town)
+
+    error = assert_raises(ElectronicInvoice::Error) { @invoice.to_xml }
+    assert_equal 1, error.message.scan("Town can't be blank").size
+    assert_includes error.message, "Buyer: Town can't be blank"
+  end
+
+  def test_separate_ship_to_address_is_validated
+    @invoice.ship_to = { name: "Warehouse", street: "Dock", zip_code: "20457", country_code: "DE" }
+
+    error = assert_raises(ElectronicInvoice::Error) { @invoice.to_xml }
+    assert_includes error.message, "Ship to: Town can't be blank"
+  end
 end
