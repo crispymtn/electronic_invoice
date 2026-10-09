@@ -1,9 +1,11 @@
 # ElectronicInvoice
 
-ElectronicInvoice is a Ruby gem to generate electronic invoices as UN/CEFACT CII XML following EN 16931. It supports
+ElectronicInvoice is a Ruby gem to generate and read electronic invoices following EN 16931. It generates UN/CEFACT CII XML for
 
 - **ZUGFeRD / Factur-X** (profile EN 16931, default) – XML part only, embedding into a PDF/A-3 is not covered
 - **XRechnung 3.0** (`standard: :xrechnung`), required for invoices to German public authorities
+
+and reads received ZUGFeRD / Factur-X PDFs, CII XMLs (ZUGFeRD 2.x, Factur-X, XRechnung CII) and UBL XMLs (XRechnung UBL, PEPPOL BIS), see [Reading e-invoices](#reading-e-invoices).
 
 All amounts are given in cents. The totals of the invoice are calculated from the line items and charges; `net_total` and `gross_total` are optional and checked against the calculated totals if given.
 
@@ -270,6 +272,65 @@ This will output the XML string for the invoice, which can then be sent to the a
   </rsm:SupplyChainTradeTransaction>
 </rsm:CrossIndustryInvoice>
 ```
+
+## Reading e-invoices
+
+Since 2025 every German business has to be able to receive e-invoices. `ElectronicInvoice.read` reads a ZUGFeRD / Factur-X PDF (the embedded `factur-x.xml`, `zugferd-invoice.xml` or `xrechnung.xml`) or an XML in CII or UBL syntax (UBL 2.1 Invoice and CreditNote). The input is a path, an IO or a String with the content:
+
+```ruby
+invoice = ElectronicInvoice.read("rechnung.pdf")
+invoice = ElectronicInvoice.read(params[:file])            # IO, e.g. an upload
+invoice = ElectronicInvoice::Reader.from_xml(xml_string)
+xml = ElectronicInvoice::Reader.extract_xml("rechnung.pdf") # only extract the XML
+
+invoice.number                   # => "471102"
+invoice.issue_date               # => Date
+invoice.profile                  # => :en16931
+invoice.e_invoice?               # => true
+invoice.seller.name              # => "Lieferant GmbH"
+invoice.seller.vat_id            # => "DE123456789"
+invoice.line_items.first.net_total # => 0.198e3 (BigDecimal)
+invoice.totals.due_payable       # => 0.52987e3
+invoice.payment_means.first.iban
+invoice.payment_terms.cash_discounts # => [{ days: 14, percent: 0.2e1, basis_amount: nil }]
+invoice.arithmetic_warnings      # => [] or e.g. ["BR-CO-15: grand total is 340.00, expected 336.90"]
+```
+
+The result is an `ElectronicInvoice::Received::Invoice`, a plain Struct independent of `ElectronicInvoice::Invoice`. Unlike the invoices you generate, **amounts are BigDecimals in the invoice currency (not cents) and rates are percentages** (`19` for 19 %), as given in the document. Optional elements are `nil` or `[]`. The raw XML is available as `raw_xml`, the syntax (`:cii` or `:ubl`) as `syntax`.
+
+| Attribute | Content |
+| --- | --- |
+| `number`, `type_code`, `issue_date`, `currency_code`, `tax_currency_code` | Document (BT-1, BT-3, BT-2, BT-5, BT-6) |
+| `profile`, `guideline_id`, `business_process` | Profile (BT-24, BT-23) |
+| `buyer_reference`, `order_reference`, `contract_reference`, `payment_reference` | References (BT-10, BT-13, BT-12, BT-83) |
+| `preceding_invoices` | `[{ number:, date: }]` (BG-3) |
+| `notes` | `[{ subject_code:, text: }]` (BG-1) |
+| `seller`, `buyer`, `payee`, `ship_to` | `Received::Party`: name, ids, vat_id, tax_id, registration_number, electronic_address, contact and address |
+| `delivery_date`, `billing_period` | BT-72, `{ start:, end: }` (BG-14) |
+| `line_items` | `Received::LineItem`: name, quantity, unit_code, net_price, net_total, tax_category, tax_rate, allowances_charges, ... |
+| `allowances_charges`, `allowances`, `charges` | `Received::AllowanceCharge` on document level (BG-20, BG-21) |
+| `tax_breakdown` | `Received::TaxBreakdown`: category, rate, basis_amount, tax_amount, exemption reason (BG-23) |
+| `payment_means` | `Received::PaymentMeans`: type_code, iban, bic, mandate, debtor_iban, card (BG-16 - BG-19) |
+| `payment_terms`, `due_date` | `Received::PaymentTerms`: description, due_date, cash_discounts (Skonto) |
+| `totals` | `Received::Totals`: line_total, allowance_total, charge_total, tax_basis_total, tax_total, grand_total, prepaid, rounding, due_payable |
+
+### Profiles
+
+`profile` is `:minimum`, `:basic_wl`, `:basic`, `:en16931`, `:extended`, `:xrechnung` or `:unknown`. MINIMUM and BASIC WL do not contain the data required by EN 16931 and are no e-invoices according to § 14 UStG, `e_invoice?` is false for them (and for unknown profiles).
+
+### Checks
+
+Received invoices are read even if their totals are inconsistent. `arithmetic_warnings` lists the differences between the totals and the amounts they are calculated from (BR-CO-10 - BR-CO-16), check it before booking an invoice. The reader does not validate the invoice against the schematron rules of EN 16931 / XRechnung, use the KoSIT validator for that.
+
+### Errors
+
+All errors inherit from `ElectronicInvoice::Error`:
+
+- `ElectronicInvoice::ParseError` – malformed XML or PDF, invalid numbers or dates, or a mandatory element is missing (invoice number, issue date, type code, currency, seller and buyer name, grand total)
+- `ElectronicInvoice::UnsupportedFormatError` – the document is no CII or UBL invoice, e.g. ZUGFeRD 1.0
+- `ElectronicInvoice::NoInvoiceFoundError` – the PDF does not contain an invoice XML
+
+External entities and network access are disabled when parsing the XML.
 
 ## Error messages
 

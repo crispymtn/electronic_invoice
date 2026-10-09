@@ -1,4 +1,11 @@
 ## [Unreleased]
+
+## [2.3.0] - 2026-10-09
+- Read received e-invoices with `ElectronicInvoice.read`: ZUGFeRD / Factur-X PDFs (embedded XML), CII XMLs (ZUGFeRD 2.x, Factur-X, XRechnung CII) and UBL 2.1 invoices and credit notes (XRechnung UBL, PEPPOL BIS)
+- Detect the profile and whether the invoice is an e-invoice according to § 14 UStG (`e_invoice?`)
+- Check the totals of received invoices (`arithmetic_warnings`, BR-CO-10 - BR-CO-16)
+- New dependency: `pdf-reader`
+
 ## [2.2.0] - 2026-10-07
 - Pass through any UN/ECE Rec 20/21 unit code (e.g. "EA" is no longer converted to "H87")
 - Add the unit names SHEET (XST), REAM (RM) and ROLL (XRO)

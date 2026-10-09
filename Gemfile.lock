@@ -1,13 +1,15 @@
 PATH
   remote: .
   specs:
-    electronic_invoice (2.2.0)
+    electronic_invoice (2.4.0)
       activemodel (~> 8.0)
       nokogiri
+      pdf-reader (~> 2.12)
 
 GEM
   remote: https://rubygems.org/
   specs:
+    Ascii85 (2.0.1)
     activemodel (8.0.1)
       activesupport (= 8.0.1)
     activesupport (8.0.1)
@@ -23,12 +25,14 @@ GEM
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
       uri (>= 0.13.1)
+    afm (1.0.0)
     base64 (0.2.0)
     benchmark (0.4.0)
     bigdecimal (3.1.9)
     concurrent-ruby (1.3.5)
     connection_pool (2.5.0)
     drb (2.2.1)
+    hashery (2.1.2)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     logger (1.6.5)
@@ -49,9 +53,16 @@ GEM
       racc (~> 1.4)
     nokogiri (1.18.2-x86_64-linux-musl)
       racc (~> 1.4)
+    pdf-reader (2.16.0)
+      Ascii85 (>= 1.0, < 3.0, != 2.0.0)
+      afm (>= 0.2.1, < 2)
+      hashery (~> 2.0)
+      ttfunk
     racc (1.8.1)
     rake (13.2.1)
     securerandom (0.4.1)
+    ttfunk (1.8.0)
+      bigdecimal (~> 3.1)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     uri (1.0.2)

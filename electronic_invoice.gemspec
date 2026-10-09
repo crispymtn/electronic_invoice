@@ -35,6 +35,7 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency "nokogiri"
   spec.add_dependency "activemodel", "~> 8.0"
+  spec.add_dependency "pdf-reader", "~> 2.12"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
