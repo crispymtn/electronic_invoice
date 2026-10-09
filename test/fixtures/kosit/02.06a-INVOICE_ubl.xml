@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cec="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
+  <cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0</cbc:CustomizationID>
+  <cbc:ProfileID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0</cbc:ProfileID>
+  <cbc:ID>1234567</cbc:ID>
+  <cbc:IssueDate>2019-08-20</cbc:IssueDate>
+  <cbc:DueDate>2019-08-29</cbc:DueDate>
+  <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
+  <cbc:DocumentCurrencyCode>EUR</cbc:DocumentCurrencyCode>
+  <cbc:BuyerReference>90000000-03083-72</cbc:BuyerReference>
+  <cac:ContractDocumentReference>
+    <cbc:ID>0000000752</cbc:ID>
+  </cac:ContractDocumentReference>
+  <cac:AdditionalDocumentReference>
+    <cbc:ID>01_15_Anhang_01.pdf</cbc:ID>
+      <cbc:DocumentDescription>Aufschlüsselung der einzelnen Leistungspositionen</cbc:DocumentDescription>
+      <cac:Attachment>
+      <cbc:EmbeddedDocumentBinaryObject mimeCode="application/pdf" filename="01_15_Anhang_01.pdf">AA==</cbc:EmbeddedDocumentBinaryObject>
+    </cac:Attachment>
+  </cac:AdditionalDocumentReference>
+  <cac:AccountingSupplierParty>
+    <cac:Party>
+      <cbc:EndpointID schemeID="EM">rechnungsausgang@test.com</cbc:EndpointID>
+          <cac:PartyIdentification>
+        <cbc:ID schemeID="0088">2428600711948</cbc:ID>
+      </cac:PartyIdentification>
+          <cac:PartyName>
+        <cbc:Name>[Seller trading name]</cbc:Name>
+      </cac:PartyName>
+          <cac:PostalAddress>
+        <cbc:StreetName>[Seller address line 1]</cbc:StreetName>
+              <cbc:AdditionalStreetName>[Seller address line 2]</cbc:AdditionalStreetName>
+              <cbc:CityName>[Seller city]</cbc:CityName>
+              <cbc:PostalZone>12345</cbc:PostalZone>
+              <cac:Country>
+          <cbc:IdentificationCode>DE</cbc:IdentificationCode>
+        </cac:Country>
+      </cac:PostalAddress>
+          <cac:PartyTaxScheme>
+        <cbc:CompanyID>ATU123456789</cbc:CompanyID>
+              <cac:TaxScheme>
+          <cbc:ID>VAT</cbc:ID>
+        </cac:TaxScheme>
+      </cac:PartyTaxScheme>
+          <cac:PartyTaxScheme>
+        <cbc:CompanyID>123/456/789</cbc:CompanyID>
+              <cac:TaxScheme>
+          <cbc:ID>FC</cbc:ID>
+        </cac:TaxScheme>
+      </cac:PartyTaxScheme>
+          <cac:PartyLegalEntity>
+        <cbc:RegistrationName>[Seller name]</cbc:RegistrationName>
+              <cbc:CompanyID schemeID="0088">3688088306671</cbc:CompanyID>
+              <cbc:CompanyLegalForm>Amtsgericht […], Geschäftsführer: […], Sitz der Gesellschaft […], Aufsichtsratvorsitzender: […]</cbc:CompanyLegalForm>
+      </cac:PartyLegalEntity>
+          <cac:Contact>
+        <cbc:Name>Tim Tester</cbc:Name>
+              <cbc:Telephone>012 3456789</cbc:Telephone>
+              <cbc:ElectronicMail>tim.tester@test.com</cbc:ElectronicMail>
+      </cac:Contact>
+    </cac:Party>
+  </cac:AccountingSupplierParty>
+  <cac:AccountingCustomerParty>
+    <cac:Party>
+      <cbc:EndpointID schemeID="EM">rechnungseingang@test.de</cbc:EndpointID>
+          <cac:PartyIdentification>
+        <cbc:ID>138</cbc:ID>
+      </cac:PartyIdentification>
+      <cac:PartyName>
+        <cbc:Name>[Buyer trading name]</cbc:Name>
+      </cac:PartyName>
+      <cac:PostalAddress>
+        <cbc:StreetName>[Buyer address line 1]</cbc:StreetName>
+              <cbc:AdditionalStreetName>[Buyer address line 2]</cbc:AdditionalStreetName>
+              <cbc:CityName>[Buyer city]</cbc:CityName>
+              <cbc:PostalZone>98765</cbc:PostalZone>
+              <cac:AddressLine>
+          <cbc:Line>[Buyer address line 3]</cbc:Line>
+        </cac:AddressLine>
+              <cac:Country>
+          <cbc:IdentificationCode>DE</cbc:IdentificationCode>
+        </cac:Country>
+      </cac:PostalAddress>
+          <cac:PartyTaxScheme>
+        <cbc:CompanyID>DE12345ABC</cbc:CompanyID>
+              <cac:TaxScheme>
+          <cbc:ID>VAT</cbc:ID>
+        </cac:TaxScheme>
+      </cac:PartyTaxScheme>
+          <cac:PartyLegalEntity>
+        <cbc:RegistrationName>[Buyer name]</cbc:RegistrationName>
+              <cbc:CompanyID schemeID="0204">90000000-03083-72</cbc:CompanyID>
+      </cac:PartyLegalEntity>
+          <cac:Contact>
+        <cbc:Name>Tina Tester</cbc:Name>
+              <cbc:Telephone>0800 123456</cbc:Telephone>
+              <cbc:ElectronicMail>tester@test.de</cbc:ElectronicMail>
+      </cac:Contact>
+    </cac:Party>
+  </cac:AccountingCustomerParty>
+  <cac:PaymentMeans>
+    <cbc:PaymentMeansCode>58</cbc:PaymentMeansCode>
+      <cbc:PaymentID>Deb. 12345 / Fact. 9876543</cbc:PaymentID>
+      <cac:PayeeFinancialAccount>
+      <cbc:ID>DE79000000001234567890</cbc:ID>
+          <cbc:Name>[Payment account name]</cbc:Name>
+          <cac:FinancialInstitutionBranch>
+        <cbc:ID>[BIC]</cbc:ID>
+      </cac:FinancialInstitutionBranch>
+    </cac:PayeeFinancialAccount>
+  </cac:PaymentMeans>
+  <cac:PaymentTerms>
+    <cbc:Note>Bitte überweisen Sie bis zum …</cbc:Note>
+  </cac:PaymentTerms>
+  <cac:TaxTotal>
+    <cbc:TaxAmount currencyID="EUR">2.08</cbc:TaxAmount>
+      <cac:TaxSubtotal>
+      <cbc:TaxableAmount currencyID="EUR">10.95</cbc:TaxableAmount>
+          <cbc:TaxAmount currencyID="EUR">2.08</cbc:TaxAmount>
+          <cac:TaxCategory>
+        <cbc:ID>S</cbc:ID>
+              <cbc:Percent>19</cbc:Percent>
+              <cac:TaxScheme>
+          <cbc:ID>VAT</cbc:ID>
+        </cac:TaxScheme>
+      </cac:TaxCategory>
+    </cac:TaxSubtotal>
+  </cac:TaxTotal>
+  <cac:LegalMonetaryTotal>
+    <cbc:LineExtensionAmount currencyID="EUR">10.95</cbc:LineExtensionAmount>
+      <cbc:TaxExclusiveAmount currencyID="EUR">10.95</cbc:TaxExclusiveAmount>
+      <cbc:TaxInclusiveAmount currencyID="EUR">13.03</cbc:TaxInclusiveAmount>
+      <cbc:PayableAmount currencyID="EUR">13.03</cbc:PayableAmount>
+  </cac:LegalMonetaryTotal>
+  <cac:InvoiceLine>
+    <cbc:ID>1</cbc:ID>
+      <cbc:InvoicedQuantity unitCode="XPP">1</cbc:InvoicedQuantity>
+      <cbc:LineExtensionAmount currencyID="EUR">29.95</cbc:LineExtensionAmount>
+      <cac:Item>
+      <cbc:Name>Abschlag Monat</cbc:Name>
+          <cac:ClassifiedTaxCategory>
+        <cbc:ID>S</cbc:ID>
+              <cbc:Percent>19</cbc:Percent>
+              <cac:TaxScheme>
+          <cbc:ID>VAT</cbc:ID>
+        </cac:TaxScheme>
+      </cac:ClassifiedTaxCategory>
+    </cac:Item>
+      <cac:Price>
+      <cbc:PriceAmount currencyID="EUR">29.95</cbc:PriceAmount>
+    </cac:Price>
+  </cac:InvoiceLine>
+  <cac:InvoiceLine>
+    <cbc:ID>2</cbc:ID>
+      <cbc:InvoicedQuantity unitCode="XPP">-19</cbc:InvoicedQuantity>
+      <cbc:LineExtensionAmount currencyID="EUR">-19</cbc:LineExtensionAmount>
+      <cac:Item>
+      <cbc:Name>Minderleistungen Produkt 2 Vormonat</cbc:Name>
+          <cac:ClassifiedTaxCategory>
+        <cbc:ID>S</cbc:ID>
+              <cbc:Percent>19</cbc:Percent>
+              <cac:TaxScheme>
+          <cbc:ID>VAT</cbc:ID>
+        </cac:TaxScheme>
+      </cac:ClassifiedTaxCategory>
+    </cac:Item>
+      <cac:Price>
+      <cbc:PriceAmount currencyID="EUR">1</cbc:PriceAmount>
+    </cac:Price>
+  </cac:InvoiceLine>
+</Invoice>

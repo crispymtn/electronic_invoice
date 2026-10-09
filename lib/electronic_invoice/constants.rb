@@ -50,6 +50,40 @@ module ElectronicInvoice
     xrechnung: "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"
   }
 
+  # Namespaces of the UN/CEFACT Cross Industry Invoice (D16B)
+  CII_NAMESPACES = {
+    "rsm" => "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100",
+    "ram" => "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100",
+    "qdt" => "urn:un:unece:uncefact:data:standard:QualifiedDataType:100",
+    "udt" => "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100"
+  }
+
+  # Namespaces of UBL 2.1 invoices and credit notes
+  UBL_NAMESPACES = {
+    "Invoice" => "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2",
+    "CreditNote" => "urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2",
+    "cac" => "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2",
+    "cbc" => "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+  }
+
+  # Profiles by guideline (BT-24), checked in this order. Covers ZUGFeRD 2.x, Factur-X and XRechnung.
+  PROFILE_PATTERNS = [
+    [/xrechnung/i, :xrechnung],
+    [/extended/i, :extended],
+    [/basicwl/i, :basic_wl],
+    [/minimum/i, :minimum],
+    [/basic\z/i, :basic],
+    [/\Aurn:cen\.eu:en16931:2017\z/, :en16931],
+    # Other core invoice usage specifications (CIUS) of EN 16931
+    [/\Aurn:cen\.eu:en16931:2017#compliant#/, :en16931]
+  ]
+
+  # Profiles that are e-invoices according to § 14 UStG (MINIMUM and BASIC WL do not cover EN 16931)
+  E_INVOICE_PROFILES = %i[basic en16931 extended xrechnung]
+
+  # Names of the invoice XML embedded in a ZUGFeRD / Factur-X PDF
+  EMBEDDED_XML_FILENAMES = %w[factur-x.xml zugferd-invoice.xml xrechnung.xml]
+
   # Business process (BT-23) required by XRechnung (PEPPOL-EN16931-R001)
   XRECHNUNG_BUSINESS_PROCESS = "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0"
 
