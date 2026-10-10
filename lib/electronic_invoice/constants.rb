@@ -142,6 +142,16 @@ module ElectronicInvoice
     REVERSED_INVOICE: {
       code: "457",
       name: "Stornorechnung"
+    },
+    # Issued by the buyer on behalf of the seller (Gutschrift nach § 14 Abs. 2 Satz 2 UStG)
+    SELF_BILLED_INVOICE: {
+      code: "389",
+      name: "Gutschrift"
+    },
+    # Cancels or reduces a self-billed invoice, not allowed for XRechnung (BR-DE-17)
+    SELF_BILLED_CREDIT_NOTE: {
+      code: "261",
+      name: "Gutschrift-Storno"
     }
   }
 

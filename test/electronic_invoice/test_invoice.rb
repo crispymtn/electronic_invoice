@@ -261,6 +261,50 @@ class InvoiceTest < Minitest::Test
     assert_equal "invoice@buyer.example", doc.at_xpath("//ram:BuyerTradeParty/ram:URIUniversalCommunication/ram:URIID").text
   end
 
+  def test_self_billed_invoice
+    @invoice.kind = "SELF_BILLED_INVOICE"
+
+    assert @invoice.valid?
+    assert_equal "389", Nokogiri::XML(@invoice.to_xml).remove_namespaces!.at("ExchangedDocument/TypeCode").text
+  end
+
+  def test_self_billed_credit_note
+    @invoice.kind = "SELF_BILLED_CREDIT_NOTE"
+    @invoice.preceding_invoice_reference = "GS-1"
+    @invoice.preceding_invoice_date = Date.today - 10
+
+    assert @invoice.valid?
+    assert_equal "261", Nokogiri::XML(@invoice.to_xml).remove_namespaces!.at("ExchangedDocument/TypeCode").text
+  end
+
+  def test_self_billed_credit_note_is_not_allowed_for_xrechnung
+    @invoice.standard = :xrechnung
+    @invoice.kind = "SELF_BILLED_CREDIT_NOTE"
+
+    refute @invoice.valid?
+    assert_includes @invoice.errors[:kind], "is not allowed for XRechnung"
+  end
+
+  # A correction reverses quantities and amounts, prices stay positive (BR-27)
+  def test_correction_with_negative_quantities
+    @invoice.kind = "CORRECTION"
+    @invoice.preceding_invoice_reference = "INV-12344"
+    @invoice.preceding_invoice_date = Date.today - 10
+    @invoice.net_total = -1000.0
+    @invoice.gross_total = -1190.0
+    @invoice.line_items = [{ description: "Product 1", qty: 10, unit: "EA", net: -100.0, net_total: -1000.0,
+      gross_total: -1190.0, tax_rate: 0.19, tax_category: "S", tax: -190.0, discount: 0.0, discounted_net_total: -1000.0,
+      currency_code: "EUR" }]
+
+    assert @invoice.valid?, @invoice.errors.full_messages.to_sentence
+    xml = Nokogiri::XML(@invoice.to_xml).remove_namespaces!
+    assert_equal "384", xml.at("ExchangedDocument/TypeCode").text
+    # Amounts are given in cents
+    assert_equal "1.0000", xml.at("NetPriceProductTradePrice/ChargeAmount").text
+    assert_equal "-10.0000", xml.at("BilledQuantity").text
+    assert_equal "-11.90", xml.at("GrandTotalAmount").text
+  end
+
   def test_totals_are_calculated_from_line_items
     @invoice.line_items = [@invoice.line_items.first.merge(qty: 3, net: 33.333, net_total: 100.0, tax: 19.0, gross_total: 119.0)]
     @invoice.net_total = 100.0

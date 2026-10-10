@@ -97,7 +97,7 @@ Set `standard: :xrechnung` to generate an XRechnung 3.0 invoice. In addition to 
 - `buyer_reference` (Leitweg-ID) or `buyer[:electronic_invoicing_identifier]`
 - `seller[:contact_name]`, `seller[:phone]` and `seller[:email]`
 - `seller[:electronic_address]` and `buyer[:electronic_address]`
-- `kind` must be one of `INVOICE`, `CREDIT_NOTE`, `CORRECTION` or `PART_INVOICE`
+- `kind` must be one of `INVOICE`, `CREDIT_NOTE`, `CORRECTION`, `PART_INVOICE`, `SELF_BILLED_INVOICE` (389) or `SELF_BILLED_CREDIT_NOTE` (261, not allowed for XRechnung)
 - Card payments (`CREDITCARD`) need the `card_number` (last digits only)
 
 ```ruby
