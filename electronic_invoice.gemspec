@@ -6,11 +6,12 @@ Gem::Specification.new do |spec|
   spec.name = "electronic_invoice"
   spec.version = ElectronicInvoice::VERSION
   spec.authors = ["Sascha Weidlich"]
-  spec.email = ["sascha.weidlich@mac.com"]
+  spec.email = ["sw@crispymtn.com"]
 
   spec.summary = "Generate ZUGFeRD-compliant electronic invoices"
   spec.description = "A Ruby gem to generate XML invoices following the ZUGFeRD standard"
   spec.homepage = "https://github.com/crispymtn/electronic_invoice"
+  spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"
 
   # Not published to a gem server, the gem is used via git. The invalid host prevents an accidental `rake release`.
